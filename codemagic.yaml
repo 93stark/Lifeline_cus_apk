@@ -1,0 +1,25 @@
+workflows:
+  android-release:
+    name: Lifeline Customer - Android
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      flutter: stable
+      # For Play Store: in Codemagic > Teams > Code signing identities > Android keystores,
+      # upload your keystore with reference name "lifeline_keystore", then uncomment:
+      # android_signing:
+      #   - lifeline_keystore
+    scripts:
+      - name: Prepare Android project
+        script: bash tool/prepare_android.sh
+      - name: Get packages
+        script: flutter pub get
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build APK (install & test directly)
+        script: flutter build apk --release --build-number=$BUILD_NUMBER
+      - name: Build AAB (Play Store upload)
+        script: flutter build appbundle --release --build-number=$BUILD_NUMBER
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
