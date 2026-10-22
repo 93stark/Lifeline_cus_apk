@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api.dart';
 import '../main.dart';
+import '../widgets/booking_card.dart' show openUrl;
 
 class AuthScreen extends StatefulWidget {
   final VoidCallback onDone;
@@ -22,6 +23,13 @@ class _AuthScreenState extends State<AuthScreen> {
     if (d.length == 12 && d.startsWith('91')) d = d.substring(2);
     if (d.length == 11 && d.startsWith('0')) d = d.substring(1);
     return d;
+  }
+
+  void forgotPin() {
+    final m = normMobile(mobile.text);
+    final msg = Uri.encodeComponent(
+        'Hello Lifeline, I forgot my PIN. Please reset it.${m.length == 10 ? ' My registered mobile: $m' : ''}');
+    openUrl('https://wa.me/917797493140?text=$msg');
   }
 
   Future<void> submit() async {
@@ -139,6 +147,14 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                   ),
+                  if (!signup)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: forgotPin,
+                        child: const Text('Forgot PIN?'),
+                      ),
+                    ),
                   if (error != null)
                     Container(
                       margin: const EdgeInsets.only(top: 12),

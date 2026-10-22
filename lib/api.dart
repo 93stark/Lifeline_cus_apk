@@ -37,7 +37,10 @@ class Api {
 
   Future<Map<String, dynamic>> call(String path, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('$kBaseUrl$path');
-    final headers = <String, String>{'Accept': 'application/json'};
+    final headers = <String, String>{
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 13) LifelineCustomerApp/1.0',
+    };
     if (token != null) headers['Authorization'] = 'Bearer $token';
     http.Response r;
     try {
@@ -49,8 +52,11 @@ class Api {
       } else {
         r = await http.get(uri, headers: headers).timeout(const Duration(seconds: 25));
       }
-    } catch (_) {
-      throw ApiError('Network problem. Check internet and try again.');
+    } catch (e) {
+      final t = e.runtimeType.toString();
+      throw ApiError(t.contains('Timeout')
+          ? 'Server is taking too long. Check internet and try again.'
+          : 'Network problem ($t). Check internet and try again.');
     }
     Map<String, dynamic> j = {};
     try {
@@ -61,7 +67,7 @@ class Api {
       onUnauthorized?.call();
     }
     if (r.statusCode < 200 || r.statusCode >= 300) {
-      throw ApiError((j['error'] ?? 'Something went wrong').toString(), r.statusCode);
+      throw ApiError((j['error'] ?? 'Server problem (HTTP ${r.statusCode}). Please try again.').toString(), r.statusCode);
     }
     return j;
   }
