@@ -22,18 +22,22 @@ class Api {
   void Function()? onUnauthorized;
 
   Future<void> loadToken() async {
-    final p = await SharedPreferences.getInstance();
-    token = p.getString('ll_token');
+    try {
+      final p = await SharedPreferences.getInstance();
+      token = p.getString('ll_token');
+    } catch (_) {}
   }
 
   Future<void> saveToken(String? t) async {
-    token = t;
-    final p = await SharedPreferences.getInstance();
-    if (t == null) {
-      await p.remove('ll_token');
-    } else {
-      await p.setString('ll_token', t);
-    }
+    token = t; // always keep it in memory so login works even if saving to disk fails
+    try {
+      final p = await SharedPreferences.getInstance();
+      if (t == null) {
+        await p.remove('ll_token');
+      } else {
+        await p.setString('ll_token', t);
+      }
+    } catch (_) {}
   }
 
   Future<Map<String, dynamic>> call(String path, {Map<String, dynamic>? body}) async {

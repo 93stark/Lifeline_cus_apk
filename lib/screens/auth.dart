@@ -180,7 +180,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         : Text(signup ? 'Create account' : 'Login'),
                   ),
                   const SizedBox(height: 14),
-                  const Text('100% free for customers  ·  app v1.0.2 (fix-3)',
+                  const Text('100% free for customers  ·  app v1.0.3',
                       textAlign: TextAlign.center, style: TextStyle(color: Colors.black45, fontSize: 12)),
                 ],
               ),

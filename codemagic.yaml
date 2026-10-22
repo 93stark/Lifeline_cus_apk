@@ -17,9 +17,9 @@ workflows:
       - name: Analyze
         script: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Build APK (install & test directly)
-        script: flutter build apk --release --build-number=$BUILD_NUMBER
+        script: flutter build apk --release --no-shrink --build-number=$BUILD_NUMBER
       - name: Build AAB (Play Store upload)
-        script: flutter build appbundle --release --build-number=$BUILD_NUMBER
+        script: flutter build appbundle --release --no-shrink --build-number=$BUILD_NUMBER
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
       - build/app/outputs/bundle/release/*.aab

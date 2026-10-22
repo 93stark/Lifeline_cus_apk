@@ -14,6 +14,11 @@ dependencies:
   url_launcher: ^6.3.0
   geolocator: ^13.0.1
 
+# Newer shared_preferences_android (2.4+) crashes in release builds on some phones
+# (NoSuchMethodError ... SharedPreferencesApiRegistrar.getAll). Keep the stable 2.3.x line.
+dependency_overrides:
+  shared_preferences_android: ">=2.2.0 <2.4.0"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
