@@ -73,9 +73,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         loadError = null;
         if (tab == -1) tab = bk.any(isCurrent) ? 1 : 0;
       });
-    } on ApiError catch (x) {
+    } catch (x) {
       if (!mounted) return;
-      if (!silent) setState(() { loadError = x.message; loading = false; if (tab == -1) tab = 0; });
+      final m = x is ApiError ? x.message : 'Could not load your data: $x';
+      if (!silent || me == null) setState(() { loadError = m; loading = false; });
     }
   }
 

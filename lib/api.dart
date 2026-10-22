@@ -18,6 +18,7 @@ class Api {
   static final Api i = Api._();
 
   String? token;
+  String? pendingMsg; // shown on the login screen after a forced logout
   void Function()? onUnauthorized;
 
   Future<void> loadToken() async {
@@ -64,6 +65,7 @@ class Api {
       if (d is Map<String, dynamic>) j = d;
     } catch (_) {}
     if (r.statusCode == 401 && !path.contains('login') && !path.contains('signup')) {
+      pendingMsg = 'Session problem (401) on ${path.split('?').first}: ${(j['error'] ?? 'unauthorized')}. Please login again.';
       onUnauthorized?.call();
     }
     if (r.statusCode < 200 || r.statusCode >= 300) {

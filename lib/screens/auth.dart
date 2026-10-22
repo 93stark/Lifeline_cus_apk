@@ -12,7 +12,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool signup = false, busy = false, hidePin = true;
-  String? error;
+  String? error = Api.i.pendingMsg;
   final name = TextEditingController();
   final mobile = TextEditingController();
   final location = TextEditingController();
@@ -57,10 +57,18 @@ class _AuthScreenState extends State<AuthScreen> {
       final r = signup
           ? await Api.i.signup(name.text.trim(), m, location.text.trim(), p)
           : await Api.i.login(m, p);
-      await Api.i.saveToken(r['token'] as String?);
+      final tk = r['token'];
+      if (tk is! String || tk.isEmpty) {
+        setState(() => error = 'Login reply had no token: ${r.keys.join(', ')}');
+        return;
+      }
+      Api.i.pendingMsg = null;
+      await Api.i.saveToken(tk);
       widget.onDone();
     } on ApiError catch (x) {
       setState(() => error = x.message);
+    } catch (x) {
+      setState(() => error = 'Unexpected error: $x');
     } finally {
       if (mounted) setState(() => busy = false);
     }
