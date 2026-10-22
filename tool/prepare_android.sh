@@ -27,6 +27,10 @@ if 'android.permission.INTERNET' not in s:
     s = s.replace('<application', perms + '    <application', 1)
 if '<queries>' not in s:
     s = s.replace('</manifest>', queries + '</manifest>', 1)
+# Some phones (Redmi/Xiaomi) show a blank white screen with Impeller; use the stable Skia renderer.
+if 'EnableImpeller' not in s:
+    s = s.replace('<application', '<application', 1)
+    s = re.sub(r'(<application[^>]*>)', r'\1\n        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false"/>', s, count=1)
 # app name shown on the phone
 s = re.sub(r'android:label="[^"]*"', 'android:label="Lifeline"', s, count=1)
 open(p, "w", encoding="utf-8").write(s)
