@@ -52,8 +52,7 @@ mkdir -p "$RES/drawable"
 cat > "$RES/drawable/launch_background.xml" <<'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/white"/>
+    <item android:drawable="#FF0B2A4A"/>
 </layer-list>
 XML
-sed -i 's/@android:color\/white/#0B2A4A/' "$RES/drawable/launch_background.xml"
 echo "Android project ready."
