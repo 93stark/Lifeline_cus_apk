@@ -91,6 +91,12 @@ class Api {
   Future<Map<String, dynamic>> updateProfile(String name, String location) =>
       call('/api/customer?action=profile', body: {'name': name, 'location': location});
 
+  // ---- offer banners (public) ----
+  Future<List<Map<String, dynamic>>> banners() async {
+    final j = await call('/api/banner');
+    return ((j['banners'] as List?) ?? []).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
   // ---- catalog & bookings ----
   Future<List<dynamic>> catalog() async {
     final j = await call('/api/catalog');

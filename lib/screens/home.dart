@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../api.dart';
 import '../models.dart';
+import '../theme.dart';
 import '../widgets/booking_card.dart';
 import 'book.dart';
 
@@ -306,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Column(children: [
-                  Text(n, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF0F766E))),
+                  Text(n, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kPrimary)),
                   Text(l, style: const TextStyle(color: Colors.black54, fontSize: 12)),
                 ]))));
     return ListView(padding: const EdgeInsets.all(14), children: [
@@ -397,9 +398,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(first.isEmpty ? 'Lifeline' : 'Hi, $first 👋', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          if (me != null) Text('📍 ${s(me!['location'])}', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+        toolbarHeight: 66,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(decoration: const BoxDecoration(gradient: kGradient)),
+        titleSpacing: 14,
+        title: Row(children: [
+          const LogoMark(size: 42),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(first.isEmpty ? 'Lifeline' : 'Hi, $first 👋',
+                  maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              if (me != null)
+                Text('📍 ${s(me!['location'])}',
+                    maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            ]),
+          ),
         ]),
       ),
       body: body,

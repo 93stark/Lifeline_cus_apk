@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../api.dart';
-import '../main.dart';
+import '../theme.dart';
 import '../widgets/booking_card.dart' show openUrl;
 
 class AuthScreen extends StatefulWidget {
@@ -76,117 +76,131 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final kb = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 12),
-                  Container(
-                    height: 76,
-                    width: 76,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: kPrimary, borderRadius: BorderRadius.circular(20)),
-                    child: const Icon(Icons.build_circle_outlined, color: Colors.white, size: 44),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text('Lifeline',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: kPrimary)),
-                  const Text('Trusted local technicians, at your door',
-                      textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
-                  const SizedBox(height: 22),
-                  SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('Login')),
-                      ButtonSegment(value: true, label: Text('Create account')),
+      backgroundColor: kBg,
+      body: Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + (kb ? 10 : 26), 20, kb ? 14 : 30),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [kDark, kPrimary]),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
+            ),
+            child: Column(children: [
+              LogoMark(size: kb ? 56 : 110, glow: true),
+              SizedBox(height: kb ? 6 : 14),
+              const Text('LIFELINE',
+                  style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: 4)),
+              if (!kb) ...const [
+                SizedBox(height: 6),
+                Text('Your trusted platform and our verified technicians',
+                    textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 13.5)),
+              ],
+            ]),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SegmentedButton<bool>(
+                        style: SegmentedButton.styleFrom(
+                          selectedBackgroundColor: kPrimary,
+                          selectedForegroundColor: Colors.white,
+                          backgroundColor: Colors.white,
+                        ),
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(value: false, label: Text('Login')),
+                          ButtonSegment(value: true, label: Text('Create account')),
+                        ],
+                        selected: {signup},
+                        onSelectionChanged: (v) => setState(() {
+                          signup = v.first;
+                          error = null;
+                        }),
+                      ),
+                      const SizedBox(height: 18),
+                      if (signup) ...[
+                        TextField(
+                          controller: name,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: const InputDecoration(labelText: 'Full name *', prefixIcon: Icon(Icons.person_outline)),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      TextField(
+                        controller: mobile,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 13,
+                        decoration: const InputDecoration(
+                            labelText: 'Mobile number *', prefixIcon: Icon(Icons.phone_outlined), counterText: ''),
+                      ),
+                      const SizedBox(height: 12),
+                      if (signup) ...[
+                        TextField(
+                          controller: location,
+                          decoration: const InputDecoration(
+                              labelText: 'Location *',
+                              hintText: 'Area / city, e.g. Purulia',
+                              prefixIcon: Icon(Icons.place_outlined)),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      TextField(
+                        controller: pin,
+                        keyboardType: TextInputType.number,
+                        obscureText: hidePin,
+                        maxLength: 4,
+                        decoration: InputDecoration(
+                          labelText: signup ? 'Set 4-digit PIN *' : '4-digit PIN *',
+                          helperText: signup ? 'You will use mobile + PIN to log in next time' : null,
+                          counterText: '',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(hidePin ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => hidePin = !hidePin),
+                          ),
+                        ),
+                      ),
+                      if (!signup)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(onPressed: forgotPin, child: const Text('Forgot PIN?')),
+                        ),
+                      if (error != null)
+                        Container(
+                          margin: const EdgeInsets.only(top: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: const Color(0xFFFDECEA), borderRadius: BorderRadius.circular(10)),
+                          child: Text(error!, style: const TextStyle(color: Color(0xFFC0352B))),
+                        ),
+                      const SizedBox(height: 18),
+                      FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: kAccent),
+                        onPressed: busy ? null : submit,
+                        child: busy
+                            ? const SizedBox(
+                                height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
+                            : Text(signup ? 'Create account' : 'Login'),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text('100% free for customers  ·  app v1.1.0',
+                          textAlign: TextAlign.center, style: TextStyle(color: Colors.black45, fontSize: 12)),
                     ],
-                    selected: {signup},
-                    onSelectionChanged: (v) => setState(() {
-                      signup = v.first;
-                      error = null;
-                    }),
                   ),
-                  const SizedBox(height: 18),
-                  if (signup) ...[
-                    TextField(
-                      controller: name,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Full name *', prefixIcon: Icon(Icons.person_outline)),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: mobile,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 13,
-                    decoration: const InputDecoration(
-                        labelText: 'Mobile number *', prefixIcon: Icon(Icons.phone_outlined), counterText: ''),
-                  ),
-                  const SizedBox(height: 12),
-                  if (signup) ...[
-                    TextField(
-                      controller: location,
-                      decoration: const InputDecoration(
-                          labelText: 'Location *',
-                          hintText: 'Area / city, e.g. Purulia',
-                          prefixIcon: Icon(Icons.place_outlined)),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: pin,
-                    keyboardType: TextInputType.number,
-                    obscureText: hidePin,
-                    maxLength: 4,
-                    decoration: InputDecoration(
-                      labelText: signup ? 'Set 4-digit PIN *' : '4-digit PIN *',
-                      helperText: signup ? 'You will use mobile + PIN to log in next time' : null,
-                      counterText: '',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(hidePin ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => hidePin = !hidePin),
-                      ),
-                    ),
-                  ),
-                  if (!signup)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: forgotPin,
-                        child: const Text('Forgot PIN?'),
-                      ),
-                    ),
-                  if (error != null)
-                    Container(
-                      margin: const EdgeInsets.only(top: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFFDECEA), borderRadius: BorderRadius.circular(10)),
-                      child: Text(error!, style: const TextStyle(color: Color(0xFFC0352B))),
-                    ),
-                  const SizedBox(height: 18),
-                  FilledButton(
-                    onPressed: busy ? null : submit,
-                    child: busy
-                        ? const SizedBox(
-                            height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                        : Text(signup ? 'Create account' : 'Login'),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text('100% free for customers  ·  app v1.0.3',
-                      textAlign: TextAlign.center, style: TextStyle(color: Colors.black45, fontSize: 12)),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

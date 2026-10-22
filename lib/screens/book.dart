@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import '../api.dart';
 import '../models.dart';
+import '../theme.dart';
+import '../widgets/banner_carousel.dart';
 
 class BookScreen extends StatefulWidget {
   final Catalog? catalog;
@@ -212,8 +214,17 @@ class _BookScreenState extends State<BookScreen> {
     final total = (leaf?.rate ?? 0) * q;
 
     return ListView(padding: const EdgeInsets.all(16), children: [
-      const Text('Book a service', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-      const Text('Technicians nearby will send you their quotes.', style: TextStyle(color: Colors.black54)),
+      const BannerCarousel(),
+      const SizedBox(height: 18),
+      Row(children: [
+        Container(width: 5, height: 24, decoration: BoxDecoration(color: kAccent, borderRadius: BorderRadius.circular(3))),
+        const SizedBox(width: 8),
+        const Text('Book a service', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800, color: kDark)),
+      ]),
+      const Padding(
+        padding: EdgeInsets.only(left: 13),
+        child: Text('Technicians nearby will send you their quotes.', style: TextStyle(color: Colors.black54)),
+      ),
       label('Category *'),
       DropdownButtonFormField<String>(
         value: cc['id'] as String,
@@ -253,7 +264,7 @@ class _BookScreenState extends State<BookScreen> {
         Container(
           margin: const EdgeInsets.only(top: 10),
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: const Color(0xFFE7F6EF), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: const Color(0xFFE8F1FA), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFCFE0F1))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const Text('Market average rate', style: TextStyle(color: Colors.black54, fontSize: 12)),
             Text('${inr(leaf.rate)} per ${leaf.unit} × $q = ${inr(total)}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
@@ -308,6 +319,7 @@ class _BookScreenState extends State<BookScreen> {
         ),
       const SizedBox(height: 18),
       FilledButton(
+        style: FilledButton.styleFrom(backgroundColor: kAccent, minimumSize: const Size.fromHeight(54)),
         onPressed: busy ? null : submit,
         child: busy
             ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))

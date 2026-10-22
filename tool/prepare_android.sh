@@ -37,4 +37,23 @@ open(p, "w", encoding="utf-8").write(s)
 PY
 
 rm -rf test
+
+# App icon (Lifeline logo)
+RES=android/app/src/main/res
+for d in tool/icons/mipmap-*; do
+  n=$(basename "$d")
+  mkdir -p "$RES/$n"
+  cp "$d/ic_launcher.png" "$RES/$n/ic_launcher.png"
+done
+rm -rf "$RES"/mipmap-anydpi* 2>/dev/null || true
+
+# Dark-blue launch screen instead of a white flash
+mkdir -p "$RES/drawable"
+cat > "$RES/drawable/launch_background.xml" <<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/white"/>
+</layer-list>
+XML
+sed -i 's/@android:color\/white/#0B2A4A/' "$RES/drawable/launch_background.xml"
 echo "Android project ready."

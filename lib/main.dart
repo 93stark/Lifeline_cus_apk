@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'api.dart';
 import 'screens/auth.dart';
 import 'screens/home.dart';
-
-const kPrimary = Color(0xFF0F766E);
-const kAccent = Color(0xFFF59E0B);
+import 'screens/splash.dart';
+import 'theme.dart';
 
 void main() {
   runZonedGuarded(() {
@@ -40,9 +39,11 @@ class _LifelineAppState extends State<LifelineApp> {
   bool loggedIn = false;
 
   Future<void> _boot() async {
-    try {
-      await Api.i.loadToken().timeout(const Duration(seconds: 5));
-    } catch (_) {}
+    // Load the saved login and keep the opening screen visible for a few seconds.
+    await Future.wait([
+      Api.i.loadToken().timeout(const Duration(seconds: 5), onTimeout: () {}).catchError((_) {}),
+      Future<void>.delayed(const Duration(milliseconds: 2800)),
+    ]);
     if (mounted) {
       setState(() {
         loggedIn = Api.i.token != null;
@@ -70,32 +71,42 @@ class _LifelineAppState extends State<LifelineApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: kPrimary, primary: kPrimary, secondary: kAccent),
-        scaffoldBackgroundColor: const Color(0xFFF4F7F6),
+        scaffoldBackgroundColor: kBg,
         appBarTheme: const AppBarTheme(
-          backgroundColor: kPrimary,
+          backgroundColor: kDark,
           foregroundColor: Colors.white,
           elevation: 0,
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          indicatorColor: kPrimary.withOpacity(0.14),
+          labelTextStyle: WidgetStateProperty.resolveWith((s) => TextStyle(
+                fontSize: 12,
+                fontWeight: s.contains(WidgetState.selected) ? FontWeight.w800 : FontWeight.w500,
+                color: s.contains(WidgetState.selected) ? kPrimary : Colors.black54,
+              )),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD5DEE8))),
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: kPrimary,
+            minimumSize: const Size.fromHeight(52),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ),
       home: !ready
-          ? const Scaffold(
-              backgroundColor: kPrimary,
-              body: Center(child: CircularProgressIndicator(color: Colors.white)),
-            )
+          ? const SplashScreen()
           : loggedIn
-          ? HomeScreen(onLogout: () => setState(() => loggedIn = false))
-          : AuthScreen(onDone: () => setState(() => loggedIn = true)),
+              ? HomeScreen(onLogout: () => setState(() => loggedIn = false))
+              : AuthScreen(onDone: () => setState(() => loggedIn = true)),
     );
   }
 }
